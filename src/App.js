@@ -4,7 +4,7 @@ import { Routes, BrowserRouter,Route } from 'react-router-dom';
 import Login from './components/Login/login';
 import Dashboard from './components/Dashboard/dashboard';
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
-
+import PrivateRoute from './guards/auth-guard';
 const client = new ApolloClient({
   uri: "http://127.0.0.1:5000/graphql",
   cache: new InMemoryCache()
@@ -17,7 +17,8 @@ function App() {
       <ApolloProvider client={client}>
         <BrowserRouter>
           <Routes>
-              <Route path="/" element= {<Dashboard/>}/>   
+              
+              <Route path="/" element= {<PrivateRoute Component={'Dashboard'} />}/>   
               <Route path="/auth" element= {<Login/>}/>
           </Routes>
         </BrowserRouter>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import FormControl from 'react-bootstrap/FormControl'
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useMutation, gql } from "@apollo/client";
 
-const Login = () => {
+
+
+  const Login = () => {
   const navigate = useNavigate();
   const [formState, setFormState] = useState({
     login: true,
@@ -14,6 +16,56 @@ const Login = () => {
   const cardWidth = {
     width: '35%'
   };
+
+  function sendAuthetication () {
+  
+  }
+
+  var AUTH_QUERY = gql `mutation{
+    authMutation(email:"${formState.email}", password:"${formState.password}")
+    {
+      accessToken,
+      refreshToken
+    }
+  }`;
+
+  const REGISTER_QUERY =  gql `
+    mutation{
+      userCreateMutation(email:"${formState.email}", username: "${formState.name}", password: "${formState.password}"){
+        user{
+          id
+          username
+          email
+        }
+      }
+    }`;
+
+  const [authquery, { data, loading, error }] = useMutation(AUTH_QUERY,{
+    onCompleted(data) {
+      console.log(data);
+    }
+  });
+
+  const [register, { res, load, err }] = useMutation(REGISTER_QUERY,{
+    onCompleted(data) {
+      setFormState({
+        ...formState,
+        login: true
+      })
+    }
+  });
+
+  if (error) {
+    alert('Credenciales incorrectas')
+    window.location.reload(false)
+  };
+
+  if (data) {
+    localStorage.setItem('_token', data.authMutation.access_token);
+    window.location.replace('/');
+
+  }
+
 
   return (
     <div>
@@ -64,11 +116,11 @@ const Login = () => {
                 />
                 {!formState.login && (
                 
-                <button className='btn btn-primary w-100 m-2'>Registrate</button>
+                <button className='btn btn-primary w-100 m-2' onClick={register}>Registrate</button>
                 )}
                 {formState.login && (
                 
-                <button className='btn btn-primary w-100 m-2'>Iniciar sesion</button>
+                <button className='btn btn-primary w-100 m-2 '  onClick={authquery}>Iniciar sesion</button>
                 )}
             </div>
             <div className="card-footer bg-white d-flex justify-content-between">
